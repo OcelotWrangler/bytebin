@@ -10,6 +10,9 @@ logs
 metrics
 db
 
+# Environment variables
+src/main/resources/.env
+
 # User-specific stuff:
 .idea/
 *.iws
