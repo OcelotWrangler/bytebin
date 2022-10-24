@@ -87,7 +87,7 @@ public interface StorageBackendSelector {
 
         @Override
         protected boolean test(Content content) {
-            return content.getContentLength() > this.threshold;
+            return content.getContentLength() < this.threshold;
         }
     }
 
@@ -107,7 +107,7 @@ public interface StorageBackendSelector {
             }
 
             long timeToExpiry = Duration.between(Instant.now(), expiry.toInstant()).getSeconds() / 60;
-            return timeToExpiry > this.threshold;
+            return timeToExpiry < this.threshold;
         }
     }
 
