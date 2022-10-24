@@ -55,13 +55,15 @@ public final class GetHandler implements Route.Handler {
     private final RateLimitHandler rateLimitHandler;
     private final ContentLoader contentLoader;
     private final AuthorizationHandler authorizationHandler;
+    private final UsageHandler usageHandler;
 
-    public GetHandler(BytebinServer server, RateLimiter rateLimiter, RateLimitHandler rateLimitHandler, ContentLoader contentLoader, AuthorizationHandler authorizationHandler) {
+    public GetHandler(BytebinServer server, RateLimiter rateLimiter, RateLimitHandler rateLimitHandler, ContentLoader contentLoader, AuthorizationHandler authorizationHandler, UsageHandler usageHandler) {
         this.server = server;
         this.rateLimiter = rateLimiter;
         this.rateLimitHandler = rateLimitHandler;
         this.contentLoader = contentLoader;
         this.authorizationHandler = authorizationHandler;
+        this.usageHandler = usageHandler;
     }
 
     @Override
@@ -92,6 +94,9 @@ public final class GetHandler implements Route.Handler {
 
         // metrics
         BytebinServer.recordRequest("GET", ctx);
+
+        // usage
+        this.usageHandler.logUse(ctx.header("User-Agent").value("null"), UsageHandler.GetOrPost.GET, ctx.header("User-Id").valueOrNull());
 
         // request the file from the cache async
         return this.contentLoader.get(path).handleAsync((content, throwable) -> {

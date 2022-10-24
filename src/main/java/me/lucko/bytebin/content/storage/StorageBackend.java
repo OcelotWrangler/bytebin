@@ -25,6 +25,7 @@
 
 package me.lucko.bytebin.content.storage;
 
+import com.google.gson.JsonObject;
 import me.lucko.bytebin.content.Content;
 
 import java.util.stream.Stream;
@@ -57,6 +58,10 @@ public interface StorageBackend {
      * @throws Exception catch all
      */
     void save(Content content) throws Exception;
+
+    JsonObject loadMetrics() throws Exception;
+
+    void saveMetrics(JsonObject json) throws Exception;
 
     /**
      * Deletes content from the backend.

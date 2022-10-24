@@ -25,19 +25,18 @@
 
 package me.lucko.bytebin.content.storage;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
+import com.google.gson.stream.JsonReader;
+import com.google.gson.stream.JsonWriter;
+import com.j256.ormlite.stmt.query.In;
 import me.lucko.bytebin.content.Content;
 import me.lucko.bytebin.util.ContentEncoding;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
@@ -58,12 +57,17 @@ public class LocalDiskBackend implements StorageBackend {
     /** The path to the directory where the content is stored */
     private final Path contentPath;
 
-    public LocalDiskBackend(String backendId, Path contentPath) throws IOException {
+    /** The path to the directory where metrics are stored */
+    private final Path metricsPath;
+
+    public LocalDiskBackend(String backendId, Path contentPath, Path metricsPath) throws IOException {
         this.backendId = backendId;
         this.contentPath = contentPath;
+        this.metricsPath = metricsPath;
 
         // initialise
         Files.createDirectories(this.contentPath);
+        Files.createDirectories(this.metricsPath);
     }
 
     @Override
@@ -95,6 +99,28 @@ public class LocalDiskBackend implements StorageBackend {
         try (BufferedOutputStream out = new BufferedOutputStream(Files.newOutputStream(path))) {
             write(c, out);
         }
+    }
+
+    @Override
+    public JsonObject loadMetrics() throws Exception {
+        Path path = this.metricsPath.resolve("usage.json");
+        if (!Files.exists(path)) {
+            Files.createFile(path);
+        }
+        JsonReader reader = new JsonReader(new InputStreamReader(Files.newInputStream(path)));
+        return new Gson().fromJson(reader, JsonObject.class);
+    }
+
+    @Override
+    public void saveMetrics(JsonObject json) throws Exception {
+        Path path = this.metricsPath.resolve("usage.json");
+        if (!Files.exists(path)) {
+            Files.createFile(path);
+        }
+        PrintWriter writer = new PrintWriter(new OutputStreamWriter(Files.newOutputStream(path)));
+        writer.write(new Gson().toJson(json));
+        writer.flush();
+        writer.close();
     }
 
     @Override

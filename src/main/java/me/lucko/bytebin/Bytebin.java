@@ -36,6 +36,7 @@ import me.lucko.bytebin.content.storage.LocalDiskBackend;
 import me.lucko.bytebin.content.storage.S3Backend;
 import me.lucko.bytebin.content.storage.StorageBackend;
 import me.lucko.bytebin.http.BytebinServer;
+import me.lucko.bytebin.http.UsageHandler;
 import me.lucko.bytebin.util.AuthorizationHandler;
 import me.lucko.bytebin.util.Configuration;
 import me.lucko.bytebin.util.Configuration.Option;
@@ -117,7 +118,7 @@ public final class Bytebin implements AutoCloseable {
         // setup storage backends
         List<StorageBackend> storageBackends = new ArrayList<>();
 
-        LocalDiskBackend localDiskBackend = new LocalDiskBackend("local", Paths.get("content"));
+        LocalDiskBackend localDiskBackend = new LocalDiskBackend("local", Paths.get("content"), Paths.get("metrics"));
         storageBackends.add(localDiskBackend);
 
         StorageBackendSelector backendSelector;
@@ -158,6 +159,8 @@ public final class Bytebin implements AutoCloseable {
             DefaultExports.initialize();
         }
 
+        AuthorizationHandler authorizationHandler = new AuthorizationHandler(Map.of("52b73cb6-b89e-48cc-b787-63a88badbd26", "showplaces-ios-app"));
+
         // setup the web server
         this.server = (BytebinServer) Jooby.createApp(new String[0], ExecutionMode.EVENT_LOOP, () -> new BytebinServer(
                 storageHandler,
@@ -185,7 +188,8 @@ public final class Bytebin implements AutoCloseable {
                 (Content.MEGABYTE_LENGTH * config.getInt(Option.MAX_CONTENT_LENGTH, 10)),
                 expiryHandler,
                 config.getStringMap(Option.HTTP_HOST_ALIASES),
-                new AuthorizationHandler(Map.of())
+                authorizationHandler,
+                new UsageHandler(storageHandler, authorizationHandler)
         ));
         this.server.start();
 

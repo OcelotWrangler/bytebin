@@ -25,6 +25,9 @@
 
 package me.lucko.bytebin.content.storage;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
+import com.google.gson.stream.JsonReader;
 import io.github.cdimascio.dotenv.Dotenv;
 import me.lucko.bytebin.content.Content;
 
@@ -49,6 +52,9 @@ import software.amazon.awssdk.services.s3.model.NoSuchKeyException;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 import software.amazon.awssdk.services.s3.paginators.ListObjectsV2Iterable;
 
+import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
+import java.io.InputStreamReader;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -116,6 +122,38 @@ public class S3Backend implements StorageBackend {
                         .metadata(writeMetadata(content))
                         .build(),
                 RequestBody.fromBytes(content.getContent())
+        );
+    }
+
+    @Override
+    public JsonObject loadMetrics() throws Exception {
+        try (ResponseInputStream<GetObjectResponse> in = this.client.getObject(GetObjectRequest.builder()
+                .bucket(this.bucketName)
+                .key("usage/usage.json")
+                .build()
+        )) {
+            return new Gson().fromJson(
+                    new JsonReader(
+                            new InputStreamReader(
+                                    new ByteArrayInputStream(
+                                            in.readAllBytes()
+                                    )
+                            )
+                    ), JsonObject.class
+            );
+        } catch (NoSuchKeyException e) {
+            return null;
+        }
+    }
+
+    @Override
+    public void saveMetrics(JsonObject json) {
+        this.client.putObject(
+                PutObjectRequest.builder()
+                        .bucket(this.bucketName)
+                        .key("usage/usage.json")
+                        .build(),
+                RequestBody.fromString(new Gson().toJson(json))
         );
     }
 

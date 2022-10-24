@@ -28,6 +28,7 @@ package me.lucko.bytebin.content;
 import com.github.benmanes.caffeine.cache.CacheLoader;
 import com.google.common.collect.ImmutableMap;
 
+import com.google.gson.JsonObject;
 import me.lucko.bytebin.content.storage.StorageBackend;
 
 import org.apache.logging.log4j.LogManager;
@@ -144,6 +145,38 @@ public class ContentStorageHandler implements CacheLoader<String, Content> {
             backend.save(content);
         } catch (Exception e) {
             LOGGER.warn("[STORAGE] Unable to save '" + content.getKey() + "' to the '" + backendId + "' backend", e);
+        }
+    }
+
+    public JsonObject loadMetrics() {
+        StorageBackend backend = this.backends.get("s3");
+        if (backend == null) {
+            LOGGER.error("Unable to load metrics - no such backend 's3'");
+            return new JsonObject();
+        }
+
+        // load the metrics from the backend
+        try {
+            return backend.loadMetrics();
+        } catch (Exception e) {
+            LOGGER.warn("[STORAGE] Unable to load metrics from the 's3' backend", e);
+        }
+
+        return new JsonObject();
+    }
+
+    public void saveMetrics(JsonObject json) {
+        StorageBackend backend = this.backends.get("s3");
+        if (backend == null) {
+            LOGGER.error("Unable to save metrics - no such backend 's3'");
+            return;
+        }
+
+        // save the metrics to the backend
+        try {
+            backend.saveMetrics(json);
+        } catch (Exception e) {
+            LOGGER.warn("[STORAGE] Unable to save metrics to the 's3' backend", e);
         }
     }
 
