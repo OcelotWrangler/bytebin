@@ -115,7 +115,11 @@ public final class Bytebin implements AutoCloseable {
         // setup storage backends
         List<StorageBackend> storageBackends = new ArrayList<>();
 
-        LocalDiskBackend localDiskBackend = new LocalDiskBackend("local", Paths.get("content"), Paths.get("metrics"));
+        LocalDiskBackend localDiskBackend = new LocalDiskBackend(
+                "local",
+                Paths.get("content"),
+                Paths.get("metrics")
+        );
         storageBackends.add(localDiskBackend);
 
         StorageBackendSelector backendSelector;
@@ -138,7 +142,12 @@ public final class Bytebin implements AutoCloseable {
 
         this.indexDatabase = ContentIndexDatabase.initialise(storageBackends);
 
-        ContentStorageHandler storageHandler = new ContentStorageHandler(this.indexDatabase, storageBackends, backendSelector, this.executor);
+        ContentStorageHandler storageHandler = new ContentStorageHandler(
+                this.indexDatabase,
+                storageBackends,
+                backendSelector,
+                this.executor
+        );
 
         ContentLoader contentLoader = ContentLoader.create(
                 storageHandler,
@@ -192,7 +201,12 @@ public final class Bytebin implements AutoCloseable {
 
         // schedule invalidation task
         if (expiryHandler.hasExpiryTimes() || metrics) {
-            this.executor.scheduleWithFixedDelay(storageHandler::runInvalidationAndRecordMetrics, 5, 60 * 5, TimeUnit.SECONDS);
+            this.executor.scheduleWithFixedDelay(
+                    storageHandler::runInvalidationAndRecordMetrics,
+                    5,
+                    60 * 5,
+                    TimeUnit.SECONDS
+            );
         }
     }
 

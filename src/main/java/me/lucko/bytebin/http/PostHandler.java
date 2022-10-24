@@ -72,7 +72,19 @@ public final class PostHandler implements Route.Handler {
     private final AuthorizationHandler authorizationHandler;
     private final UsageHandler usageHandler;
 
-    public PostHandler(BytebinServer server, RateLimiter rateLimiter, RateLimitHandler rateLimitHandler, ContentStorageHandler storageHandler, ContentLoader contentLoader, TokenGenerator contentTokenGenerator, long maxContentLength, ExpiryHandler expiryHandler, Map<String, String> hostAliases, AuthorizationHandler authorizationHandler, UsageHandler usageHandler) {
+    public PostHandler(
+            BytebinServer server,
+            RateLimiter rateLimiter,
+            RateLimitHandler rateLimitHandler,
+            ContentStorageHandler storageHandler,
+            ContentLoader contentLoader,
+            TokenGenerator contentTokenGenerator,
+            long maxContentLength,
+            ExpiryHandler expiryHandler,
+            Map<String, String> hostAliases,
+            AuthorizationHandler authorizationHandler,
+            UsageHandler usageHandler
+    ) {
         this.server = server;
         this.rateLimiter = rateLimiter;
         this.rateLimitHandler = rateLimitHandler;
@@ -170,7 +182,16 @@ public final class PostHandler implements Route.Handler {
 
             // add directly to the cache
             // it's quite likely that the file will be requested only a few seconds after it is uploaded
-            Content c = new Content(key, contentType, expiry, System.currentTimeMillis(), authKey != null, authKey, encoding, buf);
+            Content c = new Content(
+                    key,
+                    contentType,
+                    expiry,
+                    System.currentTimeMillis(),
+                    authKey != null,
+                    authKey,
+                    encoding,
+                    buf
+            );
             future.complete(c);
 
             try {

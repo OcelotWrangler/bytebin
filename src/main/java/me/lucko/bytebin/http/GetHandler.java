@@ -57,7 +57,14 @@ public final class GetHandler implements Route.Handler {
     private final AuthorizationHandler authorizationHandler;
     private final UsageHandler usageHandler;
 
-    public GetHandler(BytebinServer server, RateLimiter rateLimiter, RateLimitHandler rateLimitHandler, ContentLoader contentLoader, AuthorizationHandler authorizationHandler, UsageHandler usageHandler) {
+    public GetHandler(
+            BytebinServer server,
+            RateLimiter rateLimiter,
+            RateLimitHandler rateLimitHandler,
+            ContentLoader contentLoader,
+            AuthorizationHandler authorizationHandler,
+            UsageHandler usageHandler
+    ) {
         this.server = server;
         this.rateLimiter = rateLimiter;
         this.rateLimitHandler = rateLimitHandler;
@@ -96,7 +103,11 @@ public final class GetHandler implements Route.Handler {
         BytebinServer.recordRequest("GET", ctx);
 
         // usage
-        this.usageHandler.logUse(ctx.header("User-Agent").value("null"), UsageHandler.GetOrPost.GET, ctx.header("User-Id").valueOrNull());
+        this.usageHandler.logUse(
+                ctx.header("User-Agent").value("null"),
+                UsageHandler.GetOrPost.GET,
+                ctx.header("User-Id").valueOrNull()
+        );
 
         // request the file from the cache async
         return this.contentLoader.get(path).handleAsync((content, throwable) -> {
@@ -137,7 +148,9 @@ public final class GetHandler implements Route.Handler {
 
             // requester doesn't support the content encoding - there's nothing we can do
             // https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/406
-            throw new StatusCodeException(StatusCode.NOT_ACCEPTABLE, "Accept-Encoding \"" + ctx.header("Accept-Encoding").value("") + "\" does not contain Content-Encoding \"" + content.getEncoding() + "\"");
+            throw new StatusCodeException(StatusCode.NOT_ACCEPTABLE, "Accept-Encoding \"" +
+                    ctx.header("Accept-Encoding").value("") +
+                    "\" does not contain Content-Encoding \"" + content.getEncoding() + "\"");
         });
     }
 }

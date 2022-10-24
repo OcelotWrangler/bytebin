@@ -59,7 +59,16 @@ public final class PutHandler implements Route.Handler {
     private final ExpiryHandler expiryHandler;
     private final AuthorizationHandler authorizationHandler;
 
-    public PutHandler(BytebinServer server, RateLimiter rateLimiter, RateLimitHandler rateLimitHandler, ContentStorageHandler storageHandler, ContentLoader contentLoader, long maxContentLength, ExpiryHandler expiryHandler, AuthorizationHandler authorizationHandler) {
+    public PutHandler(
+            BytebinServer server,
+            RateLimiter rateLimiter,
+            RateLimitHandler rateLimitHandler,
+            ContentStorageHandler storageHandler,
+            ContentLoader contentLoader,
+            long maxContentLength,
+            ExpiryHandler expiryHandler,
+            AuthorizationHandler authorizationHandler
+    ) {
         this.server = server;
         this.rateLimiter = rateLimiter;
         this.rateLimitHandler = rateLimitHandler;
