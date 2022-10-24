@@ -78,6 +78,7 @@
 
             var xhr = new XMLHttpRequest();
             xhr.open("POST", "post", true);
+            xhr.setRequestHeader("User-Agent", "frontend-site")
             xhr.setRequestHeader("Content-Type", "text/plain");
             xhr.setRequestHeader("Content-Encoding", "gzip");
             xhr.onreadystatechange = function() {
@@ -93,7 +94,7 @@
 <body>
 <div id="nav">
     <a class="nav-left" onclick="submit()">[upload]</a>
-    <a href="https://paste.lucko.me" target="_blank">[pasting code?]</a>
+    <a href="https://paste.majek.dev" target="_blank">[pasting code?]</a>
     <a href="https://github.com/lucko/bytebin" target="_blank">[about bytebin]</a>
 </div>
 <div id="content-wrapper">
