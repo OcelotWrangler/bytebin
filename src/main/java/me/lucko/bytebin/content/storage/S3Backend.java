@@ -25,13 +25,19 @@
 
 package me.lucko.bytebin.content.storage;
 
+import io.github.cdimascio.dotenv.Dotenv;
 import me.lucko.bytebin.content.Content;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
+import software.amazon.awssdk.auth.credentials.AwsCredentials;
+import software.amazon.awssdk.auth.credentials.AwsCredentialsProvider;
+import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
 import software.amazon.awssdk.core.ResponseInputStream;
 import software.amazon.awssdk.core.sync.RequestBody;
+import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
 import software.amazon.awssdk.services.s3.model.GetObjectRequest;
@@ -67,7 +73,18 @@ public class S3Backend implements StorageBackend {
         this.bucketName = bucketName;
 
         // configure with environment variables: AWS_REGION, AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY
-        this.client = S3Client.builder().build();
+        Dotenv dotenv = Dotenv.configure().load();
+        this.client = S3Client.builder()
+            .region(Region.US_EAST_1)
+            .credentialsProvider(
+                StaticCredentialsProvider.create(
+                    AwsBasicCredentials.create(
+                        dotenv.get("AWS_ACCESS_KEY_ID"),
+                        dotenv.get("AWS_SECRET_ACCESS_KEY")
+                    )
+                )
+            )
+            .build();
     }
 
     @Override

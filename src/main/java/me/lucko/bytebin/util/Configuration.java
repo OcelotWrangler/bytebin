@@ -31,15 +31,14 @@ import com.google.common.collect.ImmutableMap;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import io.github.cdimascio.dotenv.Dotenv;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Collection;
-import java.util.Locale;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
@@ -74,6 +73,12 @@ public class Configuration {
         }
 
         value = System.getenv(option.keyEnvironmentVariable);
+        if (value != null) {
+            return parser.apply(value);
+        }
+
+        Dotenv dotenv = Dotenv.configure().load();
+        value = dotenv.get(option.keyEnvironmentVariable);
         if (value != null) {
             return parser.apply(value);
         }
