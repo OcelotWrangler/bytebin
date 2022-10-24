@@ -165,7 +165,7 @@ public final class Bytebin implements AutoCloseable {
             DefaultExports.initialize();
         }
 
-        AuthorizationHandler authorizationHandler = new AuthorizationHandler(Map.of("52b73cb6-b89e-48cc-b787-63a88badbd26", "showplaces-ios-app"));
+        AuthorizationHandler authorizationHandler = new AuthorizationHandler(Map.of());
 
         // setup the web server
         this.server = (BytebinServer) Jooby.createApp(new String[0], ExecutionMode.EVENT_LOOP, () -> new BytebinServer(
