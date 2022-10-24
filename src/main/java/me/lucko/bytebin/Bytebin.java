@@ -83,9 +83,6 @@ public final class Bytebin implements AutoCloseable {
         System.setOut(IoBuilder.forLogger(LOGGER).setLevel(Level.INFO).buildPrintStream());
         System.setErr(IoBuilder.forLogger(LOGGER).setLevel(Level.ERROR).buildPrintStream());
 
-        // set working directory
-        System.setProperty("user.dir", "/efs/");
-
         // setup a new bytebin instance
         Configuration config = Configuration.load(Paths.get("config.json"));
         try {
