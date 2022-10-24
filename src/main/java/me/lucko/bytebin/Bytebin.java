@@ -27,6 +27,7 @@ package me.lucko.bytebin;
 
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 
+import com.google.gson.JsonObject;
 import me.lucko.bytebin.content.Content;
 import me.lucko.bytebin.content.ContentIndexDatabase;
 import me.lucko.bytebin.content.ContentLoader;
@@ -58,6 +59,7 @@ import io.prometheus.client.hotspot.DefaultExports;
 
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Executors;
@@ -165,7 +167,12 @@ public final class Bytebin implements AutoCloseable {
             DefaultExports.initialize();
         }
 
-        AuthorizationHandler authorizationHandler = new AuthorizationHandler(Map.of());
+        JsonObject authKeysJson = config.getJsonObject(Option.AUTH_KEYS).getAsJsonObject();
+        Map<String, String> authKeys = new HashMap<>();
+        for (String key : authKeysJson.keySet()) {
+            authKeys.put(key, authKeysJson.get(key).getAsString());
+        }
+        AuthorizationHandler authorizationHandler = new AuthorizationHandler(authKeys);
 
         // setup the web server
         this.server = (BytebinServer) Jooby.createApp(new String[0], ExecutionMode.EVENT_LOOP, () -> new BytebinServer(

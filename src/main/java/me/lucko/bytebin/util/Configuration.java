@@ -28,9 +28,7 @@ package me.lucko.bytebin.util;
 import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-import com.google.gson.Gson;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
+import com.google.gson.*;
 import io.github.cdimascio.dotenv.Dotenv;
 
 import java.io.BufferedReader;
@@ -107,6 +105,18 @@ public class Configuration {
         return get(option, def, Boolean::parseBoolean, JsonElement::getAsBoolean);
     }
 
+    public JsonElement getJsonObject(Option option) {
+        return get(
+                option,
+                new JsonObject(),
+                str -> {
+                    str = str.replace("'", "");
+                    return JsonParser.parseString(str);
+                },
+                JsonElement::getAsJsonObject
+        );
+    }
+
     public Map<String, String> getStringMap(Option option) {
         return get(option, ImmutableMap.of(),
                 str -> Splitter.on(',').withKeyValueSeparator('=').split(str).entrySet().stream()
@@ -178,7 +188,8 @@ public class Configuration {
         UPDATE_RATE_LIMIT_PERIOD("updateRateLimitPeriodMins", "bytebin.ratelimit.update.period"), // minutes
         UPDATE_RATE_LIMIT("updateRateLimit", "bytebin.ratelimit.update.amount"),
         READ_RATE_LIMIT_PERIOD("readRateLimitPeriodMins", "bytebin.ratelimit.read.period"), // minutes
-        READ_RATE_LIMIT("readRateLimit", "bytebin.ratelimit.read.amount");
+        READ_RATE_LIMIT("readRateLimit", "bytebin.ratelimit.read.amount"),
+        AUTH_KEYS("authKeys", "bytebin.authentication.keys");
 
         final String keyJson;
         final String keySystemProperty;
