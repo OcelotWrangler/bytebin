@@ -102,7 +102,7 @@ public class S3Backend implements StorageBackend {
     public Content load(String key) throws Exception {
         try (ResponseInputStream<GetObjectResponse> in = this.client.getObject(GetObjectRequest.builder()
                 .bucket(this.bucketName)
-                .key(key)
+                .key("content/" + key)
                 .build()
         )) {
             Content content = read(key, in.response().metadata(), in.readAllBytes());
@@ -118,7 +118,7 @@ public class S3Backend implements StorageBackend {
         this.client.putObject(
                 PutObjectRequest.builder()
                         .bucket(this.bucketName)
-                        .key(content.getKey())
+                        .key("content/" + content.getKey())
                         .metadata(writeMetadata(content))
                         .build(),
                 RequestBody.fromBytes(content.getContent())
@@ -161,7 +161,7 @@ public class S3Backend implements StorageBackend {
     public void delete(String key) throws Exception {
         this.client.deleteObject(DeleteObjectRequest.builder()
                 .bucket(this.bucketName)
-                .key(key)
+                .key("content/" + key)
                 .build()
         );
     }
@@ -170,6 +170,7 @@ public class S3Backend implements StorageBackend {
     public Stream<Content> list() throws Exception {
         ListObjectsV2Iterable iter = this.client.listObjectsV2Paginator(ListObjectsV2Request.builder()
                 .bucket(this.bucketName)
+                .delimiter("content/")
                 .build()
         );
         return iter.stream().flatMap(resp -> resp.contents().stream()
