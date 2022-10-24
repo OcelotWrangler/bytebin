@@ -1,0 +1,1 @@
+web: java -jar -Duser.dir=/efs/ application.jar
