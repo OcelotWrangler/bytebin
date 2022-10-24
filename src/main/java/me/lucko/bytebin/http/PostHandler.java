@@ -28,12 +28,7 @@ package me.lucko.bytebin.http;
 import me.lucko.bytebin.content.Content;
 import me.lucko.bytebin.content.ContentLoader;
 import me.lucko.bytebin.content.ContentStorageHandler;
-import me.lucko.bytebin.util.ContentEncoding;
-import me.lucko.bytebin.util.ExpiryHandler;
-import me.lucko.bytebin.util.Gzip;
-import me.lucko.bytebin.util.RateLimitHandler;
-import me.lucko.bytebin.util.RateLimiter;
-import me.lucko.bytebin.util.TokenGenerator;
+import me.lucko.bytebin.util.*;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -74,8 +69,9 @@ public final class PostHandler implements Route.Handler {
     private final long maxContentLength;
     private final ExpiryHandler expiryHandler;
     private final Map<String, String> hostAliases;
+    private final AuthorizationHandler authorizationHandler;
 
-    public PostHandler(BytebinServer server, RateLimiter rateLimiter, RateLimitHandler rateLimitHandler, ContentStorageHandler storageHandler, ContentLoader contentLoader, TokenGenerator contentTokenGenerator, long maxContentLength, ExpiryHandler expiryHandler, Map<String, String> hostAliases) {
+    public PostHandler(BytebinServer server, RateLimiter rateLimiter, RateLimitHandler rateLimitHandler, ContentStorageHandler storageHandler, ContentLoader contentLoader, TokenGenerator contentTokenGenerator, long maxContentLength, ExpiryHandler expiryHandler, Map<String, String> hostAliases, AuthorizationHandler authorizationHandler) {
         this.server = server;
         this.rateLimiter = rateLimiter;
         this.rateLimitHandler = rateLimitHandler;
@@ -86,10 +82,14 @@ public final class PostHandler implements Route.Handler {
         this.maxContentLength = maxContentLength;
         this.expiryHandler = expiryHandler;
         this.hostAliases = hostAliases;
+        this.authorizationHandler = authorizationHandler;
     }
 
     @Override
     public String apply(@Nonnull Context ctx) {
+        // check auth
+        this.authorizationHandler.checkAuthorization(ctx);
+
         byte[] content = ctx.body().bytes();
 
         // ensure something was actually posted

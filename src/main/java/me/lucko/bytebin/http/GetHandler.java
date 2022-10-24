@@ -26,11 +26,7 @@
 package me.lucko.bytebin.http;
 
 import me.lucko.bytebin.content.ContentLoader;
-import me.lucko.bytebin.util.ContentEncoding;
-import me.lucko.bytebin.util.Gzip;
-import me.lucko.bytebin.util.RateLimitHandler;
-import me.lucko.bytebin.util.RateLimiter;
-import me.lucko.bytebin.util.TokenGenerator;
+import me.lucko.bytebin.util.*;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -58,16 +54,21 @@ public final class GetHandler implements Route.Handler {
     private final RateLimiter rateLimiter;
     private final RateLimitHandler rateLimitHandler;
     private final ContentLoader contentLoader;
+    private final AuthorizationHandler authorizationHandler;
 
-    public GetHandler(BytebinServer server, RateLimiter rateLimiter, RateLimitHandler rateLimitHandler, ContentLoader contentLoader) {
+    public GetHandler(BytebinServer server, RateLimiter rateLimiter, RateLimitHandler rateLimitHandler, ContentLoader contentLoader, AuthorizationHandler authorizationHandler) {
         this.server = server;
         this.rateLimiter = rateLimiter;
         this.rateLimitHandler = rateLimitHandler;
         this.contentLoader = contentLoader;
+        this.authorizationHandler = authorizationHandler;
     }
 
     @Override
     public CompletableFuture<byte[]> apply(@Nonnull Context ctx) {
+        // check auth
+        this.authorizationHandler.checkAuthorization(ctx);
+
         // get the requested path
         String path = ctx.path("id").value();
         if (path.trim().isEmpty() || path.contains(".") || TokenGenerator.INVALID_TOKEN_PATTERN.matcher(path).find()) {

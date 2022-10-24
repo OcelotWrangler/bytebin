@@ -36,6 +36,7 @@ import me.lucko.bytebin.content.storage.LocalDiskBackend;
 import me.lucko.bytebin.content.storage.S3Backend;
 import me.lucko.bytebin.content.storage.StorageBackend;
 import me.lucko.bytebin.http.BytebinServer;
+import me.lucko.bytebin.util.AuthorizationHandler;
 import me.lucko.bytebin.util.Configuration;
 import me.lucko.bytebin.util.Configuration.Option;
 import me.lucko.bytebin.util.EnvVars;
@@ -57,6 +58,7 @@ import io.prometheus.client.hotspot.DefaultExports;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -79,6 +81,9 @@ public final class Bytebin implements AutoCloseable {
         // setup logging
         System.setOut(IoBuilder.forLogger(LOGGER).setLevel(Level.INFO).buildPrintStream());
         System.setErr(IoBuilder.forLogger(LOGGER).setLevel(Level.ERROR).buildPrintStream());
+
+        // set working directory
+        System.setProperty("user.dir", "/efs/");
 
         // setup a new bytebin instance
         Configuration config = Configuration.load(Paths.get("config.json"));
@@ -121,7 +126,7 @@ public final class Bytebin implements AutoCloseable {
             storageBackends.add(s3Backend);
 
             backendSelector = new StorageBackendSelector.IfExpiryGt(
-                    config.getInt(Option.S3_EXPIRY_THRESHOLD, 2880), // 2 days
+                    config.getInt(Option.S3_EXPIRY_THRESHOLD, 10080), // 7 days
                     s3Backend,
                     new StorageBackendSelector.IfSizeGt(
                             config.getInt(Option.S3_SIZE_THRESHOLD, 100) * Content.KILOBYTE_LENGTH, // 100kb
@@ -144,7 +149,7 @@ public final class Bytebin implements AutoCloseable {
         );
 
         ExpiryHandler expiryHandler = new ExpiryHandler(
-                config.getLong(Option.MAX_CONTENT_LIFETIME, -1), // never expire by default
+                config.getLong(Option.MAX_CONTENT_LIFETIME, 10080), // expire after 1 week by default
                 config.getLongMap(Option.MAX_CONTENT_LIFETIME_USER_AGENTS)
         );
 
@@ -158,7 +163,7 @@ public final class Bytebin implements AutoCloseable {
                 storageHandler,
                 contentLoader,
                 config.getString(Option.HOST, "0.0.0.0"),
-                config.getInt(Option.PORT, 8080),
+                config.getInt(Option.PORT, 5000),
                 metrics,
                 new RateLimitHandler(config.getStringList(Option.API_KEYS)),
                 new RateLimiter(
@@ -179,7 +184,8 @@ public final class Bytebin implements AutoCloseable {
                 new TokenGenerator(config.getInt(Option.KEY_LENGTH, 7)),
                 (Content.MEGABYTE_LENGTH * config.getInt(Option.MAX_CONTENT_LENGTH, 10)),
                 expiryHandler,
-                config.getStringMap(Option.HTTP_HOST_ALIASES)
+                config.getStringMap(Option.HTTP_HOST_ALIASES),
+                new AuthorizationHandler(Map.of())
         ));
         this.server.start();
 

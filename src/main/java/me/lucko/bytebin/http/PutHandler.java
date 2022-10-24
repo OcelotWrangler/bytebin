@@ -27,12 +27,7 @@ package me.lucko.bytebin.http;
 
 import me.lucko.bytebin.content.ContentLoader;
 import me.lucko.bytebin.content.ContentStorageHandler;
-import me.lucko.bytebin.util.ContentEncoding;
-import me.lucko.bytebin.util.ExpiryHandler;
-import me.lucko.bytebin.util.Gzip;
-import me.lucko.bytebin.util.RateLimitHandler;
-import me.lucko.bytebin.util.RateLimiter;
-import me.lucko.bytebin.util.TokenGenerator;
+import me.lucko.bytebin.util.*;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -62,8 +57,9 @@ public final class PutHandler implements Route.Handler {
     private final ContentLoader contentLoader;
     private final long maxContentLength;
     private final ExpiryHandler expiryHandler;
+    private final AuthorizationHandler authorizationHandler;
 
-    public PutHandler(BytebinServer server, RateLimiter rateLimiter, RateLimitHandler rateLimitHandler, ContentStorageHandler storageHandler, ContentLoader contentLoader, long maxContentLength, ExpiryHandler expiryHandler) {
+    public PutHandler(BytebinServer server, RateLimiter rateLimiter, RateLimitHandler rateLimitHandler, ContentStorageHandler storageHandler, ContentLoader contentLoader, long maxContentLength, ExpiryHandler expiryHandler, AuthorizationHandler authorizationHandler) {
         this.server = server;
         this.rateLimiter = rateLimiter;
         this.rateLimitHandler = rateLimitHandler;
@@ -71,10 +67,14 @@ public final class PutHandler implements Route.Handler {
         this.contentLoader = contentLoader;
         this.maxContentLength = maxContentLength;
         this.expiryHandler = expiryHandler;
+        this.authorizationHandler = authorizationHandler;
     }
 
     @Override
     public CompletableFuture<Void> apply(@Nonnull Context ctx) {
+        // check auth
+        this.authorizationHandler.checkAuthorization(ctx);
+
         // get the requested path
         String path = ctx.path("id").value();
         if (path.trim().isEmpty() || path.contains(".") || TokenGenerator.INVALID_TOKEN_PATTERN.matcher(path).find()) {

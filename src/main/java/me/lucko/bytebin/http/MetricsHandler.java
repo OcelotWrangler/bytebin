@@ -31,6 +31,10 @@ import io.jooby.StatusCode;
 import io.jooby.exception.StatusCodeException;
 import io.prometheus.client.CollectorRegistry;
 import io.prometheus.client.exporter.common.TextFormat;
+import me.lucko.bytebin.util.AuthorizationHandler;
+import me.lucko.bytebin.util.Configuration;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.io.OutputStreamWriter;
 
@@ -38,12 +42,16 @@ import javax.annotation.Nonnull;
 
 public final class MetricsHandler implements Route.Handler {
 
+    private final AuthorizationHandler authorizationHandler;
+
+    public MetricsHandler(AuthorizationHandler authorizationHandler) {
+        this.authorizationHandler = authorizationHandler;
+    }
+
     @Override
     public Context apply(@Nonnull Context ctx) throws Exception {
-        // deny requests via the reverse proxy
-        if (ctx.header("X-Forwarded-For").isPresent()) {
-            throw new StatusCodeException(StatusCode.UNAUTHORIZED);
-        }
+        // check auth
+        this.authorizationHandler.checkAuthorization(ctx);
 
         String contentType = TextFormat.chooseContentType(ctx.header("Accept").valueOrNull());
         ctx.setResponseHeader("Content-Type", contentType);
