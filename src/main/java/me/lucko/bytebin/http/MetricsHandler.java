@@ -27,14 +27,9 @@ package me.lucko.bytebin.http;
 
 import io.jooby.Context;
 import io.jooby.Route;
-import io.jooby.StatusCode;
-import io.jooby.exception.StatusCodeException;
 import io.prometheus.client.CollectorRegistry;
 import io.prometheus.client.exporter.common.TextFormat;
 import me.lucko.bytebin.util.AuthorizationHandler;
-import me.lucko.bytebin.util.Configuration;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 import java.io.OutputStreamWriter;
 
