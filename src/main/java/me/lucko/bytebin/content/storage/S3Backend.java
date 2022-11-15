@@ -158,7 +158,7 @@ public class S3Backend implements StorageBackend {
     public void delete(String key) throws Exception {
         this.client.deleteObject(DeleteObjectRequest.builder()
                 .bucket(this.bucketName)
-                .key("content/" + key)
+                .key(key) // "content/" is already a part of the key
                 .build()
         );
     }
@@ -167,7 +167,7 @@ public class S3Backend implements StorageBackend {
     public Stream<Content> list() throws Exception {
         ListObjectsV2Iterable iter = this.client.listObjectsV2Paginator(ListObjectsV2Request.builder()
                 .bucket(this.bucketName)
-                .delimiter("content/")
+                .prefix("content/")
                 .build()
         );
         return iter.stream().flatMap(resp -> resp.contents().stream()

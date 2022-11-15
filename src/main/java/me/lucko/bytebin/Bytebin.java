@@ -130,10 +130,10 @@ public final class Bytebin implements AutoCloseable {
             storageBackends.add(s3Backend);
 
             backendSelector = new StorageBackendSelector.IfExpiryGt(
-                    config.getInt(Option.S3_EXPIRY_THRESHOLD, 10080), // 7 days
+                    config.getInt(Option.S3_EXPIRY_THRESHOLD, 0), // 7 days
                     s3Backend,
                     new StorageBackendSelector.IfSizeGt(
-                            config.getInt(Option.S3_SIZE_THRESHOLD, 100) * Content.KILOBYTE_LENGTH, // 100kb
+                            config.getInt(Option.S3_SIZE_THRESHOLD, 0) * Content.KILOBYTE_LENGTH, // 100kb
                             s3Backend,
                             new StorageBackendSelector.Static(localDiskBackend)
                     )
