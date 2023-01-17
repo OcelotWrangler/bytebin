@@ -198,7 +198,7 @@ public final class Bytebin implements AutoCloseable {
                         config.getInt(Option.READ_RATE_LIMIT, 30)
                 ),
                 new TokenGenerator(config.getInt(Option.KEY_LENGTH, 7)),
-                (Content.MEGABYTE_LENGTH * config.getInt(Option.MAX_CONTENT_LENGTH, 10)),
+                (Content.MEGABYTE_LENGTH * config.getInt(Option.MAX_CONTENT_LENGTH, 1000)),
                 expiryHandler,
                 config.getStringMap(Option.HTTP_HOST_ALIASES),
                 authorizationHandler,
