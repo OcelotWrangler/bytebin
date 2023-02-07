@@ -33,6 +33,7 @@ import me.lucko.bytebin.content.ContentIndexDatabase;
 import me.lucko.bytebin.content.ContentLoader;
 import me.lucko.bytebin.content.ContentStorageHandler;
 import me.lucko.bytebin.content.StorageBackendSelector;
+import me.lucko.bytebin.content.storage.AuditTask;
 import me.lucko.bytebin.content.storage.LocalDiskBackend;
 import me.lucko.bytebin.content.storage.S3Backend;
 import me.lucko.bytebin.content.storage.StorageBackend;
@@ -214,6 +215,10 @@ public final class Bytebin implements AutoCloseable {
                     60 * 5,
                     TimeUnit.SECONDS
             );
+        }
+
+        if (config.getBoolean(Option.AUDIT_ON_STARTUP, false)) {
+            this.executor.execute(new AuditTask(this.indexDatabase, storageBackends));
         }
     }
 

@@ -48,6 +48,7 @@ import software.amazon.awssdk.services.s3.model.HeadObjectResponse;
 import software.amazon.awssdk.services.s3.model.ListObjectsV2Request;
 import software.amazon.awssdk.services.s3.model.NoSuchKeyException;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
+import software.amazon.awssdk.services.s3.model.S3Object;
 import software.amazon.awssdk.services.s3.paginators.ListObjectsV2Iterable;
 
 import java.io.ByteArrayInputStream;
@@ -161,6 +162,15 @@ public class S3Backend implements StorageBackend {
                 .key(key) // "content/" is already a part of the key
                 .build()
         );
+    }
+
+    @Override
+    public Stream<String> listKeys() throws Exception {
+        ListObjectsV2Iterable iter = this.client.listObjectsV2Paginator(ListObjectsV2Request.builder()
+                .bucket(this.bucketName)
+                .build()
+        );
+        return iter.stream().flatMap(resp -> resp.contents().stream().map(S3Object::key));
     }
 
     @Override
