@@ -159,7 +159,7 @@ public final class Bytebin implements AutoCloseable {
         );
 
         ExpiryHandler expiryHandler = new ExpiryHandler(
-                config.getLong(Option.MAX_CONTENT_LIFETIME, 10080), // expire after 1 week by default
+                config.getLong(Option.MAX_CONTENT_LIFETIME, 40320), // expire after 4 weeks by default
                 config.getLongMap(Option.MAX_CONTENT_LIFETIME_USER_AGENTS)
         );
 
