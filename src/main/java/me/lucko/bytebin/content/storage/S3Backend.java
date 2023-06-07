@@ -100,7 +100,7 @@ public class S3Backend implements StorageBackend {
     public Content load(String key) throws Exception {
         try (ResponseInputStream<GetObjectResponse> in = this.client.getObject(GetObjectRequest.builder()
                 .bucket(this.bucketName)
-                .key("content/" + key)
+                .key(key)
                 .build()
         )) {
             Content content = read(key, in.response().metadata(), in.readAllBytes());
@@ -116,7 +116,7 @@ public class S3Backend implements StorageBackend {
         this.client.putObject(
                 PutObjectRequest.builder()
                         .bucket(this.bucketName)
-                        .key("content/" + content.getKey())
+                        .key(content.getKey())
                         .metadata(writeMetadata(content))
                         .build(),
                 RequestBody.fromBytes(content.getContent())

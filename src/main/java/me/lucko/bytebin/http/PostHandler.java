@@ -183,7 +183,7 @@ public final class PostHandler implements Route.Handler {
             // add directly to the cache
             // it's quite likely that the file will be requested only a few seconds after it is uploaded
             Content c = new Content(
-                    key,
+                    "content/" + key,
                     contentType,
                     expiry,
                     System.currentTimeMillis(),

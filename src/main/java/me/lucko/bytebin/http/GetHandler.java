@@ -111,7 +111,7 @@ public final class GetHandler implements Route.Handler {
         );
 
         // request the file from the cache async
-        return this.contentLoader.get(path).handleAsync((content, throwable) -> {
+        return this.contentLoader.get("content/" + path).handleAsync((content, throwable) -> {
             if (throwable != null || content == null || content.getKey() == null || content.getContent().length == 0) {
                 throw new StatusCodeException(StatusCode.NOT_FOUND, "Invalid path");
             }
